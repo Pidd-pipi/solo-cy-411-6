@@ -25,7 +25,11 @@ export function CarbonTrendChart({ data }: { data: TrendPoint[] }) {
       grid: { left: 36, right: 16, top: 20, bottom: 32 },
       tooltip: {
         trigger: 'axis',
-        formatter: (params: any) => `${params[0].axisValue}<br/>${formatActivityCategory(data[params[0].dataIndex]?.category || ActivityCategory.ENERGY)} ${params[0].value} kg CO2e`
+        formatter: (params: any) => {
+          const category = data[params[0].dataIndex]?.category;
+          const label = category ? `${formatActivityCategory(category)} ` : '';
+          return `${params[0].axisValue}<br/>${label}${params[0].value} kg CO2e`;
+        }
       },
       xAxis: { type: 'category', boundaryGap: false, data: dates },
       yAxis: { type: 'value', name: 'kg CO2e' },

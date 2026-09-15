@@ -1,5 +1,6 @@
 import { ActivityCategory } from './activity';
 import { GoalStatus } from './goal';
+import { OrganizationInviteStatus, OrganizationMemberRole } from './organization';
 
 export const LogTemplates = {
   USER_REGISTER_START: 'User[email={email}] register start',
@@ -24,6 +25,20 @@ export const LogTemplates = {
   GOAL_CREATE_SUCCESS: 'Goal[id={id}] create success target_value={targetValue}',
   GOAL_CREATE_FAILED: 'Goal[id={id}] create failed: {field} {reason}',
   GOAL_PROGRESS_CALCULATED: 'Goal[id={id}] progress calculated current={currentValue} target={targetValue}',
+  ORG_LIST_START: `Organization list start invite_statuses=${Object.values(OrganizationInviteStatus).join(',')} member_roles=${Object.values(OrganizationMemberRole).join(',')}`,
+  ORG_CREATE_START: 'Organization[name={name}] create start user_id={userId}',
+  ORG_CREATE_SUCCESS: 'Organization[id={id}] create success name={name}',
+  ORG_CREATE_FAILED: 'Organization[id={id}] create failed: {field} {reason}',
+  ORG_INVITE_ISSUE_START: 'OrganizationInvite[org_id={orgId}] issue start user_id={userId}',
+  ORG_INVITE_ISSUE_SUCCESS: 'OrganizationInvite[id={id}] issue success org_id={orgId}',
+  ORG_INVITE_ISSUE_FAILED: 'OrganizationInvite[id={id}] issue failed: {field} {reason}',
+  ORG_INVITE_REDEEM_START: 'OrganizationInvite[code={code}] redeem start user_id={userId}',
+  ORG_INVITE_REDEEM_SUCCESS: 'OrganizationInvite[id={id}] redeem success org_id={orgId} user_id={userId}',
+  ORG_INVITE_REDEEM_FAILED: 'OrganizationInvite[code={code}] redeem failed: {field} {reason}',
+  ORG_LEAVE_SUCCESS: 'OrganizationMembership[id={id}] leave success org_id={orgId} user_id={userId}',
+  ORG_MEMBER_REMOVE_SUCCESS: 'OrganizationMembership[id={id}] remove success org_id={orgId} user_id={userId}',
+  ORG_SUMMARY_CALCULATED: 'Organization[id={id}] summary calculated month={month} total={total}',
+  ORG_ACCESS_DENIED: 'Organization[id={id}] access denied user_id={userId}: {reason}',
   FACTOR_LIST_START: `CarbonFactor list start categories=${Object.values(ActivityCategory).join(',')}`,
   FACTOR_CREATE_SUCCESS: 'CarbonFactor[id={id}] create success category={category} region={region}',
   FACTOR_CREATE_FAILED: 'CarbonFactor[id={id}] create failed: {field} {reason}',

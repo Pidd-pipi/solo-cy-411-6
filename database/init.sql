@@ -64,6 +64,44 @@ CREATE TABLE IF NOT EXISTS goals (
   KEY idx_goal_user_status (user_id, status)
 );
 
+CREATE TABLE IF NOT EXISTS organizations (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(128) NOT NULL UNIQUE,
+  description VARCHAR(255) NOT NULL DEFAULT '',
+  created_by BIGINT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_org_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS organization_invites (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  org_id BIGINT NOT NULL,
+  code VARCHAR(64) NOT NULL UNIQUE,
+  status ENUM('unused','redeemed','revoked') NOT NULL DEFAULT 'unused',
+  redeemed_by BIGINT NULL,
+  redeemed_at TIMESTAMP NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_invite_org FOREIGN KEY (org_id) REFERENCES organizations(id) ON DELETE CASCADE,
+  CONSTRAINT fk_invite_redeemer FOREIGN KEY (redeemed_by) REFERENCES users(id) ON DELETE SET NULL,
+  KEY idx_invite_org_status (org_id, status)
+);
+
+CREATE TABLE IF NOT EXISTS organization_memberships (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  org_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  invite_id BIGINT NULL,
+  role ENUM('admin','member') NOT NULL DEFAULT 'member',
+  joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  left_at TIMESTAMP NULL,
+  active_user_id BIGINT GENERATED ALWAYS AS (IF(left_at IS NULL, user_id, NULL)) STORED,
+  UNIQUE KEY uk_membership_active_user (active_user_id),
+  CONSTRAINT fk_membership_org FOREIGN KEY (org_id) REFERENCES organizations(id) ON DELETE CASCADE,
+  CONSTRAINT fk_membership_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_membership_invite FOREIGN KEY (invite_id) REFERENCES organization_invites(id) ON DELETE SET NULL,
+  KEY idx_membership_org_window (org_id, user_id, joined_at, left_at)
+);
+
 CREATE TABLE IF NOT EXISTS audit_logs (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   user_id BIGINT NULL,
@@ -102,11 +140,25 @@ INSERT IGNORE INTO activities (id, user_id, factor_id, category, sub_type, amoun
   (2, 1, 3, 'energy', 'electricity', 18.00, 'kWh', 10.26, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Office lighting'),
   (3, 1, 4, 'food', 'beef-meal', 1.00, 'meal', 6.20, DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY), 'Client lunch'),
   (4, 2, 6, 'energy', 'electricity', 26.00, 'kWh', 13.78, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Store energy'),
-  (5, 3, 7, 'transport', 'bus', 18.00, 'km', 1.60, CURRENT_DATE(), 'Supplier visit');
+  (5, 3, 7, 'transport', 'bus', 18.00, 'km', 1.60, CURRENT_DATE(), 'Supplier visit'),
+  (6, 3, 7, 'transport', 'bus', 10.00, 'km', 0.89, DATE_SUB(CURRENT_DATE(), INTERVAL 5 DAY), 'Pre-leave supplier trip');
 
 INSERT IGNORE INTO goals (id, user_id, title, target_value, period_type, start_date, end_date, status) VALUES
   (1, 1, 'Keep June emissions under 120 kg', 120.00, 'month', DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), LAST_DAY(CURRENT_DATE()), 'active'),
   (2, 1, 'Reduce transport carbon this week', 20.00, 'week', DATE_SUB(CURRENT_DATE(), INTERVAL WEEKDAY(CURRENT_DATE()) DAY), DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL WEEKDAY(CURRENT_DATE()) DAY), INTERVAL 6 DAY), 'active');
+
+INSERT IGNORE INTO organizations (id, name, description, created_by) VALUES
+  (1, 'green-office', 'Demo organization carbon account for the Green Office program', 1);
+
+INSERT IGNORE INTO organization_invites (id, org_id, code, status, redeemed_by, redeemed_at) VALUES
+  (1, 1, 'GREEN-DEMO-2026', 'unused', NULL, NULL),
+  (2, 1, 'GREEN-RIVER-7F3K', 'redeemed', 2, DATE_SUB(NOW(), INTERVAL 7 DAY)),
+  (3, 1, 'GREEN-NORTH-9Q2Z', 'redeemed', 3, DATE_SUB(NOW(), INTERVAL 10 DAY));
+
+INSERT IGNORE INTO organization_memberships (id, org_id, user_id, invite_id, role, joined_at, left_at) VALUES
+  (1, 1, 1, NULL, 'admin', DATE_SUB(NOW(), INTERVAL 30 DAY), NULL),
+  (2, 1, 2, 2, 'member', DATE_SUB(NOW(), INTERVAL 7 DAY), NULL),
+  (3, 1, 3, 3, 'member', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY));
 
 INSERT IGNORE INTO audit_logs (id, user_id, action, entity, entity_id, detail, ip) VALUES
   (1, 1, 'seed', 'System', 1, 'System[id=1] seed completed: demo data ready', '127.0.0.1');

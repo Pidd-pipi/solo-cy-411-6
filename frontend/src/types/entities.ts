@@ -1,5 +1,6 @@
 import { ActivityCategory } from '../constants/activity';
 import { GoalStatus } from '../constants/goal';
+import { OrganizationInviteStatus, OrganizationMemberRole } from '../constants/organization';
 
 export interface User {
   id: number;
@@ -66,5 +67,70 @@ export interface RankingItem {
   region: string;
   avatar?: string | null;
   totalCarbon: number;
+}
+
+export interface Organization {
+  id: number;
+  name: string;
+  description: string;
+  createdBy: number;
+  createdAt?: string;
+  activeMembers?: number;
+}
+
+export interface OrganizationMembership {
+  id: number;
+  orgId: number;
+  userId: number;
+  inviteId?: number | null;
+  role: OrganizationMemberRole;
+  joinedAt: string;
+  leftAt?: string | null;
+  username?: string;
+  organization?: Organization;
+}
+
+export interface OrganizationInvite {
+  id: number;
+  orgId: number;
+  code: string;
+  status: OrganizationInviteStatus;
+  redeemedBy?: number | null;
+  redeemedAt?: string | null;
+  createdAt: string;
+}
+
+export interface OrganizationMemberSummary {
+  membershipId: number;
+  userId: number;
+  username: string;
+  role: OrganizationMemberRole;
+  joinedAt: string;
+  leftAt?: string | null;
+  activityCount: number;
+  total: number;
+}
+
+export interface OrganizationSummary {
+  organization: Organization;
+  month: string;
+  total: number;
+  activityCount: number;
+  members: OrganizationMemberSummary[];
+  byCategory: { category: ActivityCategory; value: number }[];
+  trend: { month: string; value: number }[];
+}
+
+export interface OrganizationActivityRow {
+  id: number;
+  userId: number;
+  username: string;
+  category: ActivityCategory;
+  subType: string;
+  amount: string;
+  unit: string;
+  carbonValue: string;
+  recordDate: string;
+  note?: string | null;
 }
 

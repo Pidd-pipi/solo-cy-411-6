@@ -29,6 +29,7 @@ docker compose down
 - 仪表盘展示今日、本周、本月碳排放和趋势图
 - 目标管理展示目标完成进度和到期区间
 - 排行榜按地区和时间段查看用户低碳排名
+- 组织碳账户：管理员创建组织并发放一次性邀请码，成员凭码归属；归属期内活动计入组织月度归集，退出后既有活动留在组织历史、新活动不再计入；组织管理员仅可见成员归属窗口内的活动
 - 管理员查看操作审计日志
 
 ## 本地开发方式（备选）
@@ -121,6 +122,7 @@ npm run dev
 - Activity：`database/init.sql` → `backend/src/models/activity.ts` → `backend/src/services/activityService.ts` → `backend/src/controllers/activityController.ts` → `backend/src/routes/activities.ts` → `frontend/src/api/activity.ts` → `frontend/src/stores/activityStore.ts` → `frontend/src/pages/Activities.tsx`
 - Goal：`database/init.sql` → `backend/src/models/goal.ts` → `backend/src/services/goalService.ts` → `backend/src/controllers/goalController.ts` → `backend/src/routes/goals.ts` → `frontend/src/api/goal.ts` → `frontend/src/stores/goalStore.ts` → `frontend/src/pages/Goals.tsx`
 - CarbonFactor：`database/init.sql` → `backend/src/models/carbonFactor.ts` → `backend/src/services/factorService.ts` → `backend/src/controllers/factorController.ts` → `backend/src/routes/factors.ts` → `frontend/src/api/factor.ts` → `frontend/src/pages/Activities.tsx`
+- Organization：`database/init.sql` → `backend/src/models/organization.ts`（关联 `organizationInvite.ts`、`organizationMembership.ts`）→ `backend/src/services/organizationService.ts` → `backend/src/controllers/organizationController.ts` → `backend/src/routes/organizations.ts` → `frontend/src/api/organization.ts` → `frontend/src/stores/organizationStore.ts` → `frontend/src/pages/Organization.tsx`
 
 ## 横切关注点
 
@@ -143,6 +145,20 @@ npm run dev
 - 后端引用：`backend/src/constants/errorCodes.ts`、`backend/src/constants/logTemplates.ts`、`backend/src/models/goal.ts`、`backend/src/services/goalService.ts`、`backend/src/routes/goals.ts`
 - 前端定义：`frontend/src/constants/goal.ts`
 - 前端引用：`frontend/src/constants/errorCodes.ts`、`frontend/src/constants/messages.ts`、`frontend/src/types/entities.ts`、`frontend/src/api/goal.ts`、`frontend/src/components/common/GoalProgressCard.tsx`、`frontend/src/pages/Goals.tsx`、`frontend/src/utils/formatters.ts`
+
+### OrganizationInviteStatus
+
+- 后端定义：`backend/src/constants/organization.ts`
+- 后端引用：`backend/src/constants/errorCodes.ts`、`backend/src/constants/logTemplates.ts`、`backend/src/models/organizationInvite.ts`、`backend/src/services/organizationService.ts`、`backend/src/routes/organizations.ts`
+- 前端定义：`frontend/src/constants/organization.ts`
+- 前端引用：`frontend/src/constants/errorCodes.ts`、`frontend/src/types/entities.ts`、`frontend/src/utils/formatters.ts`、`frontend/src/pages/Organization.tsx`
+
+### OrganizationMemberRole
+
+- 后端定义：`backend/src/constants/organization.ts`
+- 后端引用：`backend/src/constants/logTemplates.ts`、`backend/src/models/organizationMembership.ts`、`backend/src/services/organizationService.ts`、`backend/src/routes/organizations.ts`
+- 前端定义：`frontend/src/constants/organization.ts`
+- 前端引用：`frontend/src/types/entities.ts`、`frontend/src/utils/formatters.ts`、`frontend/src/pages/Organization.tsx`
 
 ## 强制分层与耦合设计
 

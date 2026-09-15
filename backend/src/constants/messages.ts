@@ -7,6 +7,11 @@ export const Messages = {
   ACTIVITY_DELETED: 'Activity removed from carbon ledger',
   GOAL_CREATED: 'Goal created and progress linked to activities',
   GOAL_UPDATED: 'Goal status updated',
+  ORG_CREATED: 'Organization created with admin membership attached',
+  ORG_INVITE_ISSUED: 'One-time organization invite issued',
+  ORG_INVITE_REDEEMED: 'Invite redeemed and membership window opened',
+  ORG_LEFT: 'Membership closed; historical activities stay in organization ledger',
+  ORG_MEMBER_REMOVED: 'Member removed; historical activities stay in organization ledger',
   FACTOR_CREATED: 'Carbon factor stored for region matching',
   AUDIT_LOGGED: 'Audit log captured',
   BACKEND_SHARED: 'Shared backend/frontend copy used by coupled message constants'

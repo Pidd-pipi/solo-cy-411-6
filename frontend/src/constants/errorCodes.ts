@@ -1,5 +1,6 @@
 import { ActivityCategory } from './activity';
 import { GoalStatus } from './goal';
+import { OrganizationInviteStatus } from './organization';
 
 export const ErrorCodes = {
   AUTH_TOKEN_MISSING: 'AUTH_TOKEN_MISSING',
@@ -9,6 +10,12 @@ export const ErrorCodes = {
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   ACTIVITY_CATEGORY_INVALID: `ACTIVITY_CATEGORY_INVALID:${Object.values(ActivityCategory).join('|')}`,
   GOAL_STATUS_INVALID: `GOAL_STATUS_INVALID:${Object.values(GoalStatus).join('|')}`,
+  ORG_NOT_FOUND: 'ORG_NOT_FOUND',
+  ORG_ACCESS_DENIED: 'ORG_ACCESS_DENIED',
+  ORG_MEMBERSHIP_DUPLICATE: 'ORG_MEMBERSHIP_DUPLICATE',
+  INVITE_NOT_FOUND: 'INVITE_NOT_FOUND',
+  INVITE_ALREADY_REDEEMED: 'INVITE_ALREADY_REDEEMED',
+  INVITE_STATUS_INVALID: `INVITE_STATUS_INVALID:${Object.values(OrganizationInviteStatus).join('|')}`,
   DATABASE_FAILED: 'DATABASE_FAILED'
 } as const;
 
