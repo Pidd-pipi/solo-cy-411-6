@@ -19,12 +19,14 @@ export interface OrganizationInput {
 }
 
 /**
- * 归属窗口谓词:活动 record_date 落在 [joined_at 当日, left_at 当日] 闭区间内才计入组织归集。
- * record_date 为天粒度,离开当天仍视为归属期内,保证"退出后既有活动留在组织历史";
- * 窗口之后的活动不再计入。月度归集、成员贡献、分类拆分、趋势、组织活动流全部复用同一谓词,
+ * 归属窗口谓词:活动的录入时间 created_at 落在 [joined_at, left_at) 半开区间内才计入组织归集。
+ * 归属键是录入时间而非用户可回填的 record_date,因此退出后补录的活动(无论回填到哪一天)
+ * 都不会进入归集、分类拆分、趋势和活动流;归属期内录入的既有记录永久保留在组织历史;
+ * 加入前录入的私有记录同样不会暴露给组织。月度分桶仍按 record_date(排放所属月份)。
+ * 月度归集、成员贡献、分类拆分、趋势、组织活动流全部复用同一谓词,
  * 且全部实时派生自 activities 表(不做冗余计数器),因此组织归集与个人统计永远同源一致。
  */
-const MEMBERSHIP_WINDOW_SQL = 'a.record_date >= DATE(m.joined_at) AND (m.left_at IS NULL OR a.record_date <= DATE(m.left_at))';
+const MEMBERSHIP_WINDOW_SQL = 'a.created_at >= m.joined_at AND (m.left_at IS NULL OR a.created_at < m.left_at)';
 
 const MEMBERSHIP_WINDOW_EXISTS_SQL = `EXISTS (
   SELECT 1 FROM organization_memberships m
@@ -305,8 +307,8 @@ export class OrganizationService {
   }
 
   /**
-   * 组织管理员可见的活动流:与归集完全相同的窗口谓词 + EXISTS 去重,
-   * 归属窗口之外的个人私有记录永不返回。
+   * 组织管理员可见的活动流:与归集完全相同的录入时间窗口谓词 + EXISTS 去重,
+   * 归属窗口之外录入的个人私有记录(加入前、退出后)永不返回。
    */
   async listOrgActivities(actor: AuthUser, orgId: number, monthInput?: string, limitInput?: number) {
     await this.findOrg(orgId);
@@ -323,7 +325,8 @@ export class OrganizationService {
     const rows = await this.membershipRepo.query(
       `SELECT a.id, a.user_id AS userId, u.username, a.category, a.sub_type AS subType,
               a.amount, a.unit, a.carbon_value AS carbonValue,
-              DATE_FORMAT(a.record_date, '%Y-%m-%d') AS recordDate, a.note
+              DATE_FORMAT(a.record_date, '%Y-%m-%d') AS recordDate,
+              DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s') AS createdAt, a.note
        FROM activities a
        JOIN users u ON u.id = a.user_id
        WHERE ${MEMBERSHIP_WINDOW_EXISTS_SQL}

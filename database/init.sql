@@ -45,9 +45,11 @@ CREATE TABLE IF NOT EXISTS activities (
   carbon_value DECIMAL(12,2) NOT NULL,
   record_date DATE NOT NULL,
   note VARCHAR(255) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_activities_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT fk_activities_factor FOREIGN KEY (factor_id) REFERENCES carbon_factors(id) ON DELETE SET NULL,
   KEY idx_activity_user_date (user_id, record_date),
+  KEY idx_activity_user_created (user_id, created_at),
   KEY idx_activity_category (category)
 );
 
@@ -135,13 +137,13 @@ INSERT IGNORE INTO carbon_factors (id, category, sub_type, factor_value, unit, r
   (6, 'energy', 'electricity', 0.5300, 'kWh', 'Hangzhou'),
   (7, 'transport', 'bus', 0.0890, 'km', 'Beijing');
 
-INSERT IGNORE INTO activities (id, user_id, factor_id, category, sub_type, amount, unit, carbon_value, record_date, note) VALUES
-  (1, 1, 1, 'transport', 'metro', 22.50, 'km', 1.17, CURRENT_DATE(), 'Morning commute'),
-  (2, 1, 3, 'energy', 'electricity', 18.00, 'kWh', 10.26, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Office lighting'),
-  (3, 1, 4, 'food', 'beef-meal', 1.00, 'meal', 6.20, DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY), 'Client lunch'),
-  (4, 2, 6, 'energy', 'electricity', 26.00, 'kWh', 13.78, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Store energy'),
-  (5, 3, 7, 'transport', 'bus', 18.00, 'km', 1.60, CURRENT_DATE(), 'Supplier visit'),
-  (6, 3, 7, 'transport', 'bus', 10.00, 'km', 0.89, DATE_SUB(CURRENT_DATE(), INTERVAL 5 DAY), 'Pre-leave supplier trip');
+INSERT IGNORE INTO activities (id, user_id, factor_id, category, sub_type, amount, unit, carbon_value, record_date, note, created_at) VALUES
+  (1, 1, 1, 'transport', 'metro', 22.50, 'km', 1.17, CURRENT_DATE(), 'Morning commute', NOW()),
+  (2, 1, 3, 'energy', 'electricity', 18.00, 'kWh', 10.26, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Office lighting', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+  (3, 1, 4, 'food', 'beef-meal', 1.00, 'meal', 6.20, DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY), 'Client lunch', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+  (4, 2, 6, 'energy', 'electricity', 26.00, 'kWh', 13.78, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Store energy', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+  (5, 3, 7, 'transport', 'bus', 18.00, 'km', 1.60, CURRENT_DATE(), 'Supplier visit', NOW()),
+  (6, 3, 7, 'transport', 'bus', 10.00, 'km', 0.89, DATE_SUB(CURRENT_DATE(), INTERVAL 5 DAY), 'Pre-leave supplier trip', DATE_SUB(NOW(), INTERVAL 5 DAY));
 
 INSERT IGNORE INTO goals (id, user_id, title, target_value, period_type, start_date, end_date, status) VALUES
   (1, 1, 'Keep June emissions under 120 kg', 120.00, 'month', DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), LAST_DAY(CURRENT_DATE()), 'active'),

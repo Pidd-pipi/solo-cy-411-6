@@ -33,6 +33,7 @@ export interface Activity {
   carbonValue: string;
   recordDate: string;
   note?: string | null;
+  createdAt?: string;
   factor?: CarbonFactor | null;
 }
 
@@ -131,6 +132,7 @@ export interface OrganizationActivityRow {
   unit: string;
   carbonValue: string;
   recordDate: string;
+  createdAt: string;
   note?: string | null;
 }
 

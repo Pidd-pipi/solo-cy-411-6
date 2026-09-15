@@ -94,6 +94,7 @@ export function Organization() {
     { title: '子类型', dataIndex: 'subType', key: 'subType' },
     { title: '数量', key: 'amount', render: (_: unknown, row: OrganizationActivityRow) => `${row.amount} ${row.unit}` },
     { title: '碳排放', dataIndex: 'carbonValue', key: 'carbonValue', render: (value: string) => formatCarbon(value) },
+    { title: '录入时间', dataIndex: 'createdAt', key: 'createdAt', render: (value: string) => formatDateTime(value) },
     { title: '备注', dataIndex: 'note', key: 'note', render: (value: string | null) => value || '-' }
   ];
 
@@ -101,7 +102,7 @@ export function Organization() {
     <Space direction="vertical" size={16} style={{ width: '100%' }}>
       <div>
         <Typography.Title level={2}>组织碳账户</Typography.Title>
-        <Typography.Text type="secondary">归属期内的活动计入组织归集；退出后历史保留，新活动不再计入。</Typography.Text>
+        <Typography.Text type="secondary">归属期内录入的活动计入组织归集；退出后录入的活动不再计入，历史记录保留。</Typography.Text>
       </div>
 
       {isGlobalAdmin && (

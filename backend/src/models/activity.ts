@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ActivityCategory } from '../constants/activity';
 import { CarbonFactor } from './carbonFactor';
 import { User } from './user';
@@ -34,6 +34,9 @@ export class Activity {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   note!: string | null;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt!: Date;
 
   @ManyToOne(() => User, (user) => user.activities, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
